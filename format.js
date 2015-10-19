@@ -32,7 +32,6 @@
  * @access public
  * @return string 格式化后的字符串
  */
-
 function format(source, opts, config) {
 	var data = Array.prototype.slice.call(arguments, 1);
 	var toString = Object.prototype.toString;
@@ -42,8 +41,8 @@ function format(source, opts, config) {
 		data = data.slice(1);
 	}
 	config = config || {};
-	var ld = config.ld || '\{';
-	var rd = config.rd || '\}';
+	var ld = config.ld || '\\{';
+	var rd = config.rd || '\\}';
 	var regex = new RegExp("#" + ld + "(.+?)" + rd, "g");
 
 	if (data.length) {
@@ -53,15 +52,16 @@ function format(source, opts, config) {
 			var filters, replacer, i, len, func;
 			if (!data) return '';
 			filters = key.split("|");
-			replacer = data[filters[0]];
+			key = trim.call(filters[0]);
+			replacer = data[key];
 			// chrome 下 typeof /a/ == 'function'
 			if ('[object Function]' == toString.call(replacer)) {
-				replacer = replacer(filters[0] /*key*/ );
+				replacer = replacer(key);
 			}
 			for (i = 1, len = filters.length; i < len; ++i) {
-				func = format.filters[filters[i]];
+				func = format.filters[trim.call(filters[i])];
 				if ('[object Function]' == toString.call(func)) {
-					replacer = func(replacer);
+					replacer = func(replacer, key);
 				}
 			}
 			return (('undefined' == typeof replacer || replacer === null) ? '' : replacer);
@@ -103,5 +103,9 @@ format.filters.js = format.filters.escapeJs;
 format.filters.e = format.filters.escapeString;
 format.filters.u = format.filters.escapeUrl;
 format.filters.i = format.filters.toInt;
+
+var trim = String.prototype.trim || function() {
+	return this.replace(/^\s\s*/, '').replace(/\s\s*$/, '');
+};
 
 module.exports = format;
