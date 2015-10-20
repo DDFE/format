@@ -1,6 +1,6 @@
 {
   "name": "format",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "main": "format.js",
   "description": "轻量级的模板格式化函数"
 }
